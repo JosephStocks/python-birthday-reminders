@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "birthday-reminders"
+version = "0.1.0"
+description = "Send sms message reminders for upcoming birthdays"
+authors = ["Joseph Stocks"]
+readme = "README.md"
+packages = [{include = "birthday_reminders"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+twilio = "^8.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
