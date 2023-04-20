@@ -9,6 +9,7 @@ packages = [{include = "birthday_reminders"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 twilio = "^8.0.0"
+python-dotenv = "^1.0.0"
 
 
 [build-system]
