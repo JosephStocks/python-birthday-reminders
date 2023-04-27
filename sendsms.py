@@ -15,3 +15,6 @@ def send_sms(message_body):
         body=message_body,
         to=os.environ.get("JOES_PHONE_NUMBER"),
     )
+
+
+send_sms("Does the cronjob work?")
