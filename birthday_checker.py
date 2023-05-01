@@ -1,9 +1,6 @@
 import datetime
 from excel_loader import load_excel_data
 from send_sms import send_sms
-import os
-
-print(os.getcwd())
 
 
 def get_current_date():
