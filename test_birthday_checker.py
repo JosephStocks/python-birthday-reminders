@@ -1,5 +1,5 @@
+import datetime
 import pytest
-from datetime import date, timedelta
 from birthday_checker import (
     get_current_date,
     get_today_and_thirty_days_later,
@@ -7,34 +7,68 @@ from birthday_checker import (
     is_birthday_in_next_30_days,
 )
 
-def test_get_today_and_thirty_days_later(mocker):
-    mocker.patch("birthday_checker.get_current_date", return_value=date(2023, 4, 20))
+
+def test_get_current_date():
+    assert isinstance(get_current_date(), datetime.date)
+
+
+def test_get_today_and_thirty_days_later():
     today, thirty_days_later = get_today_and_thirty_days_later()
-    assert today == date(2023, 4, 20)
-    assert thirty_days_later == date(2023, 5, 20)
+    assert isinstance(today, datetime.date)
+    assert isinstance(thirty_days_later, datetime.date)
+    assert thirty_days_later == today + datetime.timedelta(days=30)
 
 
 @pytest.mark.parametrize(
-    "bday_str, today, expected",
+    "today, bday, expected",
     [
-        ("1995-06-15", date(2023, 6, 15), True),
-        ("1987-04-25", date(2023, 4, 20), False),
-        ("2001-04-20", date(2023, 4, 20), True),
-        ("1999-05-01", date(2023, 5, 1), True),
+        (datetime.date(2023, 4, 15), datetime.date(1990, 4, 15), True),
+        (datetime.date(2023, 4, 16), datetime.date(1990, 4, 15), False),
     ],
 )
-def test_is_birthday_today(bday_str, today, expected):
-    assert is_birthday_today(bday_str, today) == expected
+def test_is_birthday_today(today, bday, expected):
+    assert is_birthday_today(bday, today) is expected
 
 
 @pytest.mark.parametrize(
-    "bday_str, today, thirty_days_later, expected",
+    "today, thirty_days_later, bday, expected",
     [
-        ("1995-06-15", date(2023, 4, 20), date(2023, 5, 20), False),
-        ("1987-04-25", date(2023, 4, 20), date(2023, 5, 20), True),
-        ("2001-04-20", date(2023, 4, 20), date(2023, 5, 20), False),
-        ("1999-05-01", date(2023, 4, 20), date(2023, 5, 20), True),
+        (
+            datetime.date(2023, 4, 15),
+            datetime.date(2023, 5, 15),
+            datetime.date(2000, 5, 1),
+            True,
+        ),
+        (
+            datetime.date(2023, 4, 15),
+            datetime.date(2023, 5, 15),
+            datetime.date(2000, 7, 1),
+            False,
+        ),
     ],
 )
-def test_is_birthday_in_next_30_days(bday_str, today, thirty_days_later, expected):
-    assert is_birthday_in_next_30_days(bday_str, today, thirty_days_later) == expected
+def test_is_birthday_in_next_30_days(today, thirty_days_later, bday, expected):
+    assert is_birthday_in_next_30_days(bday, today, thirty_days_later) is expected
+
+
+@pytest.mark.parametrize(
+    "today, thirty_days_later, bday, expected",
+    [
+        (
+            datetime.date(2023, 12, 15),
+            datetime.date(2024, 1, 14),
+            datetime.date(2000, 1, 10),
+            True,
+        ),
+        (
+            datetime.date(2023, 12, 15),
+            datetime.date(2024, 1, 14),
+            datetime.date(2000, 1, 20),
+            False,
+        ),
+    ],
+)
+def test_is_birthday_in_next_30_days_across_years(
+    today, thirty_days_later, bday, expected
+):
+    assert is_birthday_in_next_30_days(bday, today, thirty_days_later) is expected

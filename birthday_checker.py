@@ -20,7 +20,11 @@ def is_birthday_today(bday, today):
 
 def is_birthday_in_next_30_days(bday, today, thirty_days_later):
     bday_this_year = bday.replace(year=today.year)
-    return today < bday_this_year <= thirty_days_later
+    bday_next_year = bday.replace(year=today.year + 1)
+
+    return (today < bday_this_year <= thirty_days_later) or (
+        today < bday_next_year <= thirty_days_later
+    )
 
 
 def main():
