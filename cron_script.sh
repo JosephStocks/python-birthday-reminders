@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PATH="$PATH:/home/jstocks/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 
 # Get the path to the current script
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
