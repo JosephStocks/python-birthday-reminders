@@ -28,10 +28,8 @@ def is_birthday_in_next_30_days(bday, today, thirty_days_later):
 
 
 def main():
-    # Load data from the Excel file
     data = load_excel_data("Birthdays_and_other_events.xlsx")
 
-    # Extract the relevant fields
     birthdays = {}
     for entry in data:
         if entry["eventType"] == "Birthday" and entry["date"] is not None:
