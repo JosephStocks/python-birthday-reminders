@@ -1,17 +1,19 @@
 [tool.poetry]
 name = "birthday-reminders"
 version = "0.1.0"
-description = "Send sms message reminders for upcoming birthdays"
+description = "Send reminders for upcoming birthdays using Signal messaging app"
 authors = ["Joseph Stocks"]
 readme = "README.md"
 packages = [{include = "birthday_reminders"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
-twilio = "^8.0.0"
+python = "^3.11"
 python-dotenv = "^1.0.0"
 pytest-mock = "^3.10.0"
 openpyxl = "^3.1.2"
+requests = "^2.31.0"
+inflection = "^0.5.1"
+pydantic = "^2.4.2"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3.0"
@@ -20,3 +22,6 @@ pytest = "^7.3.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"

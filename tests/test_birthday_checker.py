@@ -1,15 +1,12 @@
 import datetime
+
 import pytest
-from birthday_checker import (
-    get_current_date,
+
+from birthday_reminders.birthday_checker import (
     get_today_and_thirty_days_later,
-    is_birthday_today,
     is_birthday_in_next_30_days,
+    is_birthday_today,
 )
-
-
-def test_get_current_date():
-    assert isinstance(get_current_date(), datetime.date)
 
 
 def test_get_today_and_thirty_days_later():
