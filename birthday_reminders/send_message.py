@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def send_signal_message(message_body: str):
+def send_signal_message(message_body: str) -> None:
     data = {
         "message": message_body,
         "number": "+19035203470",
