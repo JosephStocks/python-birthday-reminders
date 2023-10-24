@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass
 from datetime import date, timedelta
 from enum import StrEnum, auto
@@ -100,35 +101,46 @@ def process_birthdays(raw_data: list[RawDataEntry]) -> list[Birthday]:
 def build_message(birthdays: list[Birthday]) -> str:
     today, thirty_days_later = get_today_and_thirty_days_later()
 
-    is_birthday_today_flag = False
-    upcoming_birthdays: list[Tuple[str, date]] = []
+    today_birthday_names = [b.name for b in birthdays if is_birthday_today(b, today)]
+
+    upcoming_birthdays = [
+        (b.name, b.date)
+        for b in birthdays
+        if is_birthday_in_next_30_days(b, today, thirty_days_later)
+    ]
+
     messages: list[str] = []
 
-    for birthday in birthdays:
-        if is_birthday_today(birthday, today):
-            is_birthday_today_flag = True
-            messages.append(f"Happy Birthday, {birthday.name}!")
-
-        if is_birthday_in_next_30_days(birthday, today, thirty_days_later):
-            upcoming_birthdays.append((birthday.name, birthday.date))
-
-    if not is_birthday_today_flag:
-        messages.append("There are no birthdays today.")
-
-    if upcoming_birthdays:
-        messages.append("\nBirthdays coming up in the next 30 days:")
-        for name, bday in sorted(
-            upcoming_birthdays, key=lambda x: (x[1].month, x[1].day)
-        ):
-            messages.append(f"{name}: {bday}")
-    else:
-        messages.append("There are no birthdays coming up in the next 30 days.")
+    messages.extend(_build_today_birthday_messages(today_birthday_names))
+    messages.extend(_build_upcoming_birthday_messages(upcoming_birthdays))
 
     return "\n".join(messages)
 
 
+def _build_today_birthday_messages(names: list[str]) -> list[str]:
+    if not names:
+        return ["There are no birthdays today."]
+    return [f"Happy Birthday, {name}!" for name in names]
+
+
+def _build_upcoming_birthday_messages(
+    upcoming_birthdays: list[Tuple[str, date]]
+) -> list[str]:
+    if not upcoming_birthdays:
+        return ["There are no birthdays coming up in the next 30 days."]
+
+    sorted_upcoming_birthdays = sorted(
+        upcoming_birthdays, key=lambda x: (x[1].month, x[1].day)
+    )
+    formatted_birthdays = [
+        f"{name}: {bday}" for name, bday in sorted_upcoming_birthdays
+    ]
+
+    return ["\nBirthdays coming up in the next 30 days:"] + formatted_birthdays
+
+
 def main() -> None:
-    raw_data = load_excel_data("Birthdays_and_other_events.xlsx")
+    raw_data = load_excel_data(os.getenv("EXCEL_WORKBOOK_FILENAME"))
     birthdays = process_birthdays(raw_data)
     full_message = build_message(birthdays)
     send_signal_message(full_message)
