@@ -17,7 +17,7 @@ class RawDataEntry(BaseModel):
     relation: str
 
 
-def load_excel_data(filename: str | None) -> list[RawDataEntry]:
+def load_excel_data(filename: str) -> list[RawDataEntry]:
     if not filename:
         raise ValueError("A filename must be provided.")
 

@@ -5,15 +5,19 @@ import requests
 from dotenv import load_dotenv
 
 
-def send_signal_message(message_body: str) -> None:
+def get_env_var(var_name: str) -> str:
     try:
-        SENDER_PHONE_NUMBER = os.environ["SENDER_PHONE_NUMBER"]
-        RECIPIENTS_PHONE_NUMBERS_LIST = json.loads(
-            os.environ["RECIPIENTS_PHONE_NUMBERS_LIST"]
-        )
-        ENDPOINT = os.environ["SIGNAL_SEND_MESSAGE_ENDPOINT"]
+        return os.environ[var_name]
     except KeyError as e:
         raise ValueError(f"Environment variable {e} not set.") from e
+
+
+def send_signal_message(message_body: str) -> None:
+    SENDER_PHONE_NUMBER = get_env_var("SENDER_PHONE_NUMBER")
+    RECIPIENTS_PHONE_NUMBERS_LIST = json.loads(
+        get_env_var("RECIPIENTS_PHONE_NUMBERS_LIST")
+    )
+    ENDPOINT = get_env_var("SIGNAL_SEND_MESSAGE_ENDPOINT")
 
     data = {
         "message": message_body,

@@ -7,13 +7,13 @@ from typing import Tuple
 from dotenv import load_dotenv
 
 from .excel_loader import RawDataEntry, load_excel_data
-from .send_message import send_signal_message
+from .send_message import get_env_var, send_signal_message
 
-env = os.environ.get("ENVIRONMENT", default="dev")
+ENV = os.environ.get("ENVIRONMENT", default="dev")
 
-if env == "dev":
+if ENV == "dev":
     dotenv_path = ".env.dev"
-elif env == "prod":
+elif ENV == "prod":
     dotenv_path = ".env.prod"
 else:
     raise ValueError("Invalid environment name")
@@ -153,7 +153,7 @@ def _build_upcoming_birthday_messages(
 
 
 def main() -> None:
-    raw_data = load_excel_data(os.getenv("EXCEL_WORKBOOK_FILENAME"))
+    raw_data = load_excel_data(get_env_var("EXCEL_WORKBOOK_FILENAME"))
     birthdays = process_birthdays(raw_data)
     full_message = build_message(birthdays)
     send_signal_message(full_message)
