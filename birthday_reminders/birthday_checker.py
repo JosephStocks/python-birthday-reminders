@@ -4,8 +4,21 @@ from datetime import date, timedelta
 from enum import StrEnum, auto
 from typing import Tuple
 
+from dotenv import load_dotenv
+
 from .excel_loader import RawDataEntry, load_excel_data
 from .send_message import send_signal_message
+
+env = os.environ.get("ENVIRONMENT", default="dev")
+
+if env == "dev":
+    dotenv_path = ".env.dev"
+elif env == "prod":
+    dotenv_path = ".env.prod"
+else:
+    raise ValueError("Invalid environment name")
+
+load_dotenv(dotenv_path)
 
 
 class FamilyOrFriend(StrEnum):
