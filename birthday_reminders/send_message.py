@@ -1,15 +1,8 @@
 import json
-import os
 
 import requests
-from dotenv import load_dotenv
 
-
-def get_env_var(var_name: str) -> str:
-    try:
-        return os.environ[var_name]
-    except KeyError as e:
-        raise ValueError(f"Environment variable {e} not set.") from e
+from .load_env import get_env_var
 
 
 def send_signal_message(message_body: str) -> None:

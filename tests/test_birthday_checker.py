@@ -15,7 +15,7 @@ from birthday_reminders.birthday_checker import (
     is_birthday_tomorrow,
     process_birthdays,
 )
-from birthday_reminders.excel_loader import RawDataEntry
+from birthday_reminders.load_and_validate import RawDataEntry
 
 
 # Using freeze_time to freeze the date at "2023-10-24"

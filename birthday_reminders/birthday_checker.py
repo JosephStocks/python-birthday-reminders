@@ -1,162 +1,54 @@
-import os
-from dataclasses import dataclass
 from datetime import date, timedelta
-from enum import StrEnum, auto
-from typing import Tuple
 
-from dotenv import load_dotenv
-
-from .excel_loader import RawDataEntry, load_excel_data
-from .send_message import get_env_var, send_signal_message
-
-ENV = os.environ.get("ENVIRONMENT", default="dev")
-
-if ENV == "dev":
-    dotenv_path = ".env.dev"
-elif ENV == "prod":
-    dotenv_path = ".env.prod"
-else:
-    raise ValueError("Invalid environment name")
-
-load_dotenv(dotenv_path)
+from .load_and_validate import Birthday, load_excel_data, process_birthdays
+from .load_env import get_env_var, load_env_variables
+from .send_message import send_signal_message
 
 
-class FamilyOrFriend(StrEnum):
-    family = auto()
-    friend = auto()
+def is_birthday_x_days_from_today(bday: Birthday, days: int) -> bool:
+    x_days_from_today = date.today() + timedelta(days=days)
+    return (
+        bday.date.month == x_days_from_today.month
+        and bday.date.day == x_days_from_today.day
+    )
 
 
-class SpecificRelation(StrEnum):
-    spouse = auto()
-    child = auto()
-    sibling = auto()
-    parent = auto()
-    grandparent = auto()
-    sibling_in_law = auto()
-    niece_or_nephew = auto()
-    friend = auto()
-
-
-class Sex(StrEnum):
-    m = auto()
-    f = auto()
-
-
-class SideOfFamily(StrEnum):
-    joe = auto()
-    katie = auto()
-    both = auto()
-
-
-@dataclass
-class Birthday:
-    name: str
-    date: date
-    sure_about_year: bool
-    sex: Sex
-    family_or_friend: FamilyOrFriend
-    side_of_family: SideOfFamily
-    relation: SpecificRelation
-
-
-def get_today_and_thirty_days_later() -> Tuple[date, date]:
-    thirty_days_later = date.today() + timedelta(days=30)
-    return date.today(), thirty_days_later
-
-
-def is_birthday_today(bday: Birthday, today: date) -> bool:
+def is_birthday_today(bday: Birthday) -> bool:
+    today = date.today()
     return bday.date.month == today.month and bday.date.day == today.day
 
 
-def is_birthday_tomorrow(bday: Birthday, today: date) -> bool:
-    bday_this_year = bday.date.replace(year=today.year)
-    bday_next_year = bday.date.replace(year=today.year + 1)
-    tomorrow = today + timedelta(days=1)
-    return bday_this_year == tomorrow or bday_next_year == tomorrow
+def send_messages(birthdays: list[Birthday]) -> None:
+    for birthday in birthdays:
+        send_birthday_greeting(birthday)
+        send_upcoming_birthday_alerts(birthday)
 
 
-def is_birthday_in_next_30_days(
-    bday: Birthday, today: date, thirty_days_later: date
-) -> bool:
-    bday_this_year = bday.date.replace(year=today.year)
-    bday_next_year = bday.date.replace(year=today.year + 1)
+def send_birthday_greeting(birthday: Birthday) -> None:
+    if not is_birthday_today(birthday):
+        return
 
-    return (today < bday_this_year <= thirty_days_later) or (
-        today < bday_next_year <= thirty_days_later
-    )
+    message = f"Happy Birthday, {birthday.name}"
+    send_signal_message(message)
 
 
-def process_birthdays(raw_data: list[RawDataEntry]) -> list[Birthday]:
-    birthdays: list[Birthday] = []
-    for entry in raw_data:
-        if entry.event_type == "birthday" and entry.date is not None:
-            name = f"{entry.first_name} {entry.last_name}".strip()
-            date = entry.date.date()
-            sure_about_year = entry.sure_about_year == "yes"
-            sex = Sex[entry.sex]
-            family_or_friend = FamilyOrFriend[entry.family_or_friend]
-            side_of_family = SideOfFamily[entry.side_of_family]
-            relation = SpecificRelation[entry.relation]
+def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
+    if not birthday.days_ahead_alert:
+        return
 
-            birthday = Birthday(
-                name,
-                date,
-                sure_about_year,
-                sex,
-                family_or_friend,
-                side_of_family,
-                relation,
-            )
-            birthdays.append(birthday)
-    return birthdays
-
-
-def build_message(birthdays: list[Birthday]) -> str:
-    today, thirty_days_later = get_today_and_thirty_days_later()
-
-    today_birthday_names = [b.name for b in birthdays if is_birthday_today(b, today)]
-
-    upcoming_birthdays = [
-        (b.name, b.date)
-        for b in birthdays
-        if is_birthday_in_next_30_days(b, today, thirty_days_later)
-    ]
-
-    messages: list[str] = []
-
-    messages.extend(_build_today_birthday_messages(today_birthday_names))
-    messages.extend(_build_upcoming_birthday_messages(upcoming_birthdays))
-
-    return "\n".join(messages)
-
-
-def _build_today_birthday_messages(names: list[str]) -> list[str]:
-    if not names:
-        return ["There are no birthdays today."]
-    return [f"Happy Birthday, {name}!" for name in names]
-
-
-def _build_upcoming_birthday_messages(
-    upcoming_birthdays: list[Tuple[str, date]]
-) -> list[str]:
-    if not upcoming_birthdays:
-        return ["There are no birthdays coming up in the next 30 days."]
-
-    sorted_upcoming_birthdays = sorted(
-        upcoming_birthdays, key=lambda x: (x[1].month, x[1].day)
-    )
-    formatted_birthdays = [
-        f"{name}: {bday}" for name, bday in sorted_upcoming_birthdays
-    ]
-
-    return ["\nBirthdays coming up in the next 30 days:"] + formatted_birthdays
+    for days_ahead in birthday.days_ahead_alert:
+        if is_birthday_x_days_from_today(birthday, days_ahead):
+            date_str = birthday.date.strftime("%a, %b %d")
+            message = f"BIRTHDAY IN {days_ahead} DAYS:"
+            message += f" {birthday.name}'s birthday is on {date_str}"
+            send_signal_message(message)
 
 
 def main() -> None:
+    load_env_variables()
     raw_data = load_excel_data(get_env_var("EXCEL_WORKBOOK_FILENAME"))
-    birthdays = process_birthdays(raw_data)
-    full_message = build_message(birthdays)
-    send_signal_message(full_message)
+    birthdays = process_birthdays(raw_data=raw_data)
+    send_messages(birthdays)
 
 
 if __name__ == "__main__":
