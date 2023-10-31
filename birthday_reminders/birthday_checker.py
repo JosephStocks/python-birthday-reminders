@@ -1,3 +1,4 @@
+import logging
 from datetime import date, timedelta
 
 from .load_and_validate import Birthday, load_excel_data, process_birthdays
@@ -38,7 +39,7 @@ def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
 
     for days_ahead in birthday.days_ahead_alert:
         if is_birthday_x_days_from_today(birthday, days_ahead):
-            date_str = birthday.date.strftime("%a, %b %d")
+            date_str = f"""{birthday.date.strftime("%A, %b")} {birthday.date.day}"""
             message = f"BIRTHDAY IN {days_ahead} DAYS:"
             message += f" {birthday.name}'s birthday is on {date_str}"
             send_signal_message(message)
@@ -46,6 +47,9 @@ def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
 
 def main() -> None:
     load_env_variables()
+    logging.basicConfig(
+        level=logging.DEBUG, format="{asctime} {levelname:8} {message}", style="{"
+    )
     raw_data = load_excel_data(get_env_var("EXCEL_WORKBOOK_FILENAME"))
     birthdays = process_birthdays(raw_data=raw_data)
     send_messages(birthdays)
