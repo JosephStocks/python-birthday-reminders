@@ -48,7 +48,10 @@ def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
 def main() -> None:
     load_env_variables()
     logging.basicConfig(
-        level=logging.DEBUG, format="{asctime} {levelname:8} {message}", style="{"
+        level=logging.DEBUG,
+        filename="log.log",
+        format="{asctime} {levelname:8} {message}",
+        style="{",
     )
     raw_data = load_excel_data(get_env_var("EXCEL_WORKBOOK_FILENAME"))
     birthdays = process_birthdays(raw_data=raw_data)
