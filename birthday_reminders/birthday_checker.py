@@ -2,8 +2,9 @@ import logging
 from datetime import date, timedelta
 
 from .load_and_validate import Birthday, load_excel_data, process_birthdays
-from .load_env import get_env_var, load_env_variables
 from .send_message import send_signal_message
+
+from config import config
 
 
 def is_birthday_x_days_from_today(bday: Birthday, days: int) -> bool:
@@ -46,14 +47,14 @@ def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
 
 
 def main() -> None:
-    load_env_variables()
+    print(config)
     logging.basicConfig(
         level=logging.DEBUG,
         filename="log.log",
         format="{asctime} {levelname:8} {message}",
         style="{",
     )
-    raw_data = load_excel_data(get_env_var("EXCEL_WORKBOOK_FILENAME"))
+    raw_data = load_excel_data(config["EXCEL_WORKBOOK_FILENAME"])
     birthdays = process_birthdays(raw_data=raw_data)
     send_messages(birthdays)
 
