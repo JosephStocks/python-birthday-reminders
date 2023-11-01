@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 
@@ -21,4 +22,8 @@ def load_env_variables() -> None:
     else:
         raise ValueError("Invalid environment name")
 
+    print(dotenv_path)
+    logging.info(f"Dotenv path: {dotenv_path}")
+
     load_dotenv(dotenv_path=dotenv_path)
+    print(os.environ)
