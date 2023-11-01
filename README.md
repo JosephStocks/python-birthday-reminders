@@ -13,3 +13,13 @@ Cronjob entry:
 ```bash
 20 7 * * * /home/jstocks/python-birthday-reminders/cron_script.sh
 ```
+
+```bash
+* * * * * /home/jstocks/.local/bin/poetry --directory /home/jstocks/python-birthday-reminders/ run python /home/jstocks/python-birthday-reminders/main.py --prod
+```
+
+OR
+
+```bash
+* * * * * /home/jstocks/.local/bin/poetry --directory /home/jstocks/python-birthday-reminders/ run python /home/jstocks/python-birthday-reminders/main.py
+```
