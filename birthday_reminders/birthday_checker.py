@@ -48,7 +48,6 @@ def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
 
 
 def main(root_dir: Path) -> None:
-    print(config)
     logging.basicConfig(
         level=logging.DEBUG,
         filename="log.log",
