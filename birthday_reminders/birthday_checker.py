@@ -61,4 +61,4 @@ def main(root_dir: Path) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main(root_dir=Path(__file__).parent)
