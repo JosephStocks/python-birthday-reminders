@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -14,9 +15,9 @@ def load_env_variables() -> None:
     ENV = os.environ.get("ENVIRONMENT", default="dev")
 
     if ENV == "dev":
-        dotenv_path = ".env.dev"
+        dotenv_path = Path.cwd() / ".env.dev"
     elif ENV == "prod":
-        dotenv_path = ".env.prod"
+        dotenv_path = Path.cwd() / ".env.prod"
     else:
         raise ValueError("Invalid environment name")
 
