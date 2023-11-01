@@ -47,7 +47,7 @@ def send_upcoming_birthday_alerts(birthday: Birthday) -> None:
             send_signal_message(message)
 
 
-def main() -> None:
+def main(root_dir: Path) -> None:
     print(config)
     logging.basicConfig(
         level=logging.DEBUG,
@@ -55,7 +55,7 @@ def main() -> None:
         format="{asctime} {levelname:8} {message}",
         style="{",
     )
-    raw_data = load_excel_data(Path.cwd() / config["EXCEL_WORKBOOK_FILENAME"])
+    raw_data = load_excel_data(root_dir / config["EXCEL_WORKBOOK_FILENAME"])
     birthdays = process_birthdays(raw_data=raw_data)
     send_messages(birthdays)
 
