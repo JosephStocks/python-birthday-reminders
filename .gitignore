@@ -1,7 +1,9 @@
-.env.dev
-.env.prod
+.env*
+!.env.example
 __pycache__
 .pytest_cache
 *.xlsx
 *.log
 settings.json
+.vscode
+.venv
